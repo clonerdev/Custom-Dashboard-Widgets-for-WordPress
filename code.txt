@@ -1,0 +1,86 @@
+// Function to display notification boxes
+function nedayeweb_custom_dashboard_widget($content) {
+    echo '<div class="nedayeweb-welcome-box">';
+    echo wp_kses_post($content); // Sanitize content
+    echo '</div>';
+}
+
+// Function to add custom dashboard widgets
+function nedayeweb_add_custom_dashboard_widget() {
+    $widgets = [
+        'nedayeweb_custom_dashboard_widget_1' => ['title' => 'Welcome', 'content' => 'Welcome content'],
+        'nedayeweb_custom_dashboard_widget_2' => ['title' => 'Settings Tutorial', 'content' => 'Settings tutorial content'],
+        'nedayeweb_custom_dashboard_widget_3' => ['title' => 'SEO Tutorial', 'content' => 'SEO tutorial content']
+    ];
+
+    foreach ($widgets as $id => $widget) {
+        wp_add_dashboard_widget(
+            $id,
+            $widget['title'],
+            function() use ($widget) {
+                nedayeweb_custom_dashboard_widget($widget['content']);
+            }
+        );
+    }
+}
+
+// Adding action to call the function
+add_action('wp_dashboard_setup', 'nedayeweb_add_custom_dashboard_widget');
+
+// Adding custom styles for the boxes
+function nedayeweb_custom_dashboard_styles() {
+    $custom_css = '
+        .nedayeweb-welcome-box {
+            padding: 20px;
+            background-color: #ffffff;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .nedayeweb-welcome-box p {
+            margin: 0;
+            color: #333333;
+            font-size: 16px;
+        }
+        .nedayeweb-dashboard-widget .hndle {
+            background-color: #0073aa;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .nedayeweb-dashboard-widget {
+            border-left: 5px solid #0073aa;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    ';
+    
+    wp_add_inline_style( 'admin-dashboard', $custom_css );
+}
+add_action( 'admin_enqueue_scripts', 'nedayeweb_custom_dashboard_styles' );
+
+// Add custom class to the dashboard widgets
+function nedayeweb_add_custom_class_to_dashboard_widgets() {
+    $widgets = [
+        'nedayeweb_custom_dashboard_widget_1',
+        'nedayeweb_custom_dashboard_widget_2',
+        'nedayeweb_custom_dashboard_widget_3'
+    ];
+
+    ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php foreach ( $widgets as $id ) : ?>
+                if ( document.getElementById('<?php echo esc_js( $id ); ?>') !== null ) {
+                    document.getElementById('<?php echo esc_js( $id ); ?>').classList.add('nedayeweb-dashboard-widget');
+                }
+            <?php endforeach; ?>
+        });
+    </script>
+    <?php
+}
+add_action( 'admin_footer', 'nedayeweb_add_custom_class_to_dashboard_widgets' );
